@@ -1,24 +1,49 @@
+
+Run this command before running java code:
+```shell
+spark-shell.cmd
+```
+use <code>:quit</code> to stop process
+
+OR
+
+```shell
+pyspark.cmd
+```
+use <code>quit()</code> to stop process
+
+---
+Guide
+---
+
 ```commandline
 Used this to set up environment
 https://www.youtube.com/watch?v=JjIwAMXUvYc
+
+and code snippets from here
+https://dzone.com/articles/the-magic-of-apache-spark-in-java-1
+
 ```
 
 ```commandline
+Require installing tools into windows 11 x64
+
+Download:
+
 spark-4.0.1-bin-hadoop3.tgz
 Spark: 4.0.1 (Sep 6, 2025)
 Apache Hadoop 3.4 and later
 https://spark.apache.org/downloads.html
 https://dlcdn.apache.org/spark/spark-4.0.1/spark-4.0.1-bin-hadoop3.tgz
-Requires: 
-```
 
-```commandline
+and
+
 winutils.exe
 https://github.com/kontext-tech/winutils/blob/master/hadoop-3.4.0-win10-x64/bin/winutils.exe
 ```
 
 ```commandline
-structures:
+Setup steps:
 1) exatract spark-4.0.1-bin-hadoop3.tgz into C:\spark
 2) copy winutils.exe into C:\hadoop
 3) install jdk 17
@@ -36,6 +61,8 @@ structures:
 ```
 
 ```commandline
+Check:
+
 PS C:\Users\Andrei_Rohau> java --version
 openjdk 17.0.15 2025-04-15 LTS
 OpenJDK Runtime Environment Corretto-17.0.15.6.1 (build 17.0.15+6-LTS)
@@ -46,6 +73,8 @@ PS C:\Users\Andrei_Rohau>
 ```
 
 ```commandline
+      Code dependencies:
+      
       <dependency>
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-core_2.13</artifactId>
@@ -59,6 +88,8 @@ PS C:\Users\Andrei_Rohau>
 ```
 
 ```commandline
+// Test snippet
+
 package com.arohau.modeul2task;
 
 import org.apache.spark.api.java.function.FilterFunction;
@@ -117,6 +148,7 @@ public class SparkBonusTest {
 1) open cmd
 2) run `spark-shell` (`:quit`) OR `pyspark` (`quit()`)
 3) http://host.docker.internal:4040
+4) run java code
 ```
 
 
