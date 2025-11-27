@@ -31,7 +31,7 @@ neon auth
 ```
 ```commandline
 INFO: Awaiting authentication in web browser.
-INFO: Auth Url: https://oauth2.neon.tech/oauth2/auth?scope=openid+offline+offline_access+urn%3Aneoncloud%3Aprojects%3Acreate+urn%3Aneoncloud%3Aprojects%3Aread+urn%3Aneoncloud%3Aprojects%3Aupdate+urn%3Aneoncloud%3Aprojects%3Adelete+urn%3Aneoncloud%3Aorgs%3Acreate+urn%3Aneoncloud%3Aorgs%3Aread+urn%3Aneoncloud%3Aorgs%3Aupdate+urn%3Aneoncloud%3Aorgs%3Adelete+urn%3Aneoncloud%3Aorgs%3Apermission&state=3_Vmv7WiZjoobZLT5e87DS4aNNuMfIdYD39eI2IGUAI&code_challenge=cJTz3LVCDhZVt4EMwBVUmBopHqGGDOPuRVEIdpP9zqU&code_challenge_method=S256&redirect_uri=http%3A%2F%2F127.0.0.1%3A63951%2Fcallback&client_id=neonctl&response_type=code
+INFO: Auth Url: https://oauth2.neon.tech/oauth2/auth?scope=openid....
 INFO: Auth complete
 ```
 
@@ -96,8 +96,65 @@ apache-airflow-providers-dbt-cloud==3.10.0
 - try running your sample DAG
 - keep in mind the following [Astro CLI command reference](https://www.astronomer.io/docs/astro/cli/reference)
 
+---
+# Step 3 - Airflow-NeonDB integration
+
+```
+cd /home/arohau/vscode_space/learn/big-data-run/Data-for-Java-Developers-Mentoring-Program-4-2025-Q4/module-4-task/airflow-project-setup/airflow && astro dev start
+```
+
+### Create a role for Airflow:
+
+- open NeonDB SQL editor - make sure to choose your Dev branch and metrics DB
+- create a airflow-agent role
+- make sure to grant it the CREATE privileges on the metrics schema
+
+```
+CREATE ROLE "airflow-agent" WITH PASSWORD 'agent_password#007' LOGIN CREATEDB CREATEROLE;
+CREATE SCHEMA IF NOT EXISTS metrics;
+GRANT USAGE ON SCHEMA metrics TO "airflow-agent";
+GRANT CREATE ON SCHEMA metrics TO "airflow-agent";
+```
+
+### Create a DB connection in Airflow
+
+#### Steps to Create NeonDB Connection in Airflow UI:
+1. Open Airflow UI at http://localhost:8080 in your Windows Chrome browser
+2. Login with admin / admin
+3. Navigate to Connections:
+    - Click on **Admin** in the top menu
+    - Select **Connections** from the dropdown
+4. Add a New Connection - Click the + (plus) button
+5. Fill in the Connection Details:
+    - Connection Id: neon_db (or your preferred name)
+    - Connection Type: Select Postgres from the dropdown
+    - Host: Your NeonDB hostname (from Neon console, looks like: xxx-xxx-xxx.neon.tech)
+    - Schema: Your database name (e.g., neondb or main)
+    - Login: airflow-agent (the role name you created)
+    - Password: The password for your airflow-agent role
+    - Port: 5432 (default PostgreSQL port)
+    - Extra: (Optional) Add SSL settings:
+    ```
+    {"sslmode": "require"}
+    ```
+6. Test the Connection:
+    - Click the Test button at the bottom
+    - Make sure you see a success message with no errors
+7. Save the connection
 
 
+![alt text](image.png)
+
+Generate dag, prepare sqls
+
+```
+SELECT tablename
+FROM pg_tables
+WHERE schemaname = 'metrics';
+```
+
+---
+# Step 4 - data ingestion setup
 
 
 
