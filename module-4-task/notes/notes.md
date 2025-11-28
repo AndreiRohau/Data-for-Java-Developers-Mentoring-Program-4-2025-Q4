@@ -156,6 +156,86 @@ WHERE schemaname = 'metrics';
 ---
 # Step 4 - data ingestion setup
 
+## Prepare test data
+- generate the test data
+    - find out how to run the test data generator [here](../../aws/TEST_DATA.md) - the "Basic usage" and "CSV-formatted metrics" sections
+    - run the test data generator from [here](../../aws/materials/test-data-generator-prebuilt) - use or customise the `metrics-batch.json` task config, f.e. ` java -jar test-data-generator-1.0.0-all.jar metrics-batch.json`
+- copy the resulting data from `test-output` to the `dags/data` folder of your Airflow project
+
+## Implement ingestion
+- create a new DAG - `data-quality-pipeline`
+    - add a step for installing Python dependencies
+    - add a step which
+        - connects to the DB - see the sample code from step 3
+        - iterates over the files in the `dags/data` folder
+        - copies each file to the DB, commits, and moves the file to the `processed` folder
+    - hints
+        - use the [COPY statement](https://www.postgresql.org/docs/current/sql-copy.html) with [this from the Psycopg library](https://www.psycopg.org/docs/cursor.html#cursor.copy_expert)
+        - do not forget to commit the transaction
+        - use [this](https://medium.com/@rajatbelgundi/efficient-etl-cleaning-transforming-and-loading-csv-data-in-postgresql-with-airflow-in-a-0bf062a0ed41) to see an example of how to upload CSVs to PostgreSQL
+- run the DAG and make sure the data appears in NeonDB by querying it there. Both csv files should be imported.
+  ```sql
+  set schema 'metrics';
+
+  select component_name, count(1) as "amount" from metrics
+  group by component_name;
+```
+
+clear database
+```
+docker exec airflow_c5149d-webserver-1 bash -c 'python3 << "PYEOF"
+from airflow.providers.postgres.hooks.postgres import PostgresHook
+hook = PostgresHook(postgres_conn_id="neon_db_metrics")
+conn = hook.get_conn()
+cursor = conn.cursor()
+
+# Clear ALL data
+cursor.execute("TRUNCATE TABLE metrics.windowed_metrics RESTART IDENTITY;")
+conn.commit()
+
+# Verify empty
+cursor.execute("SELECT COUNT(*) FROM metrics.windowed_metrics")
+count = cursor.fetchone()[0]
+print(f"Database cleared. Current record count: {count}")
+
+cursor.close()
+conn.close()
+PYEOF
+'
+```
+
+
+# Step 5 - DBT model setup
+
+BigDataTraining
+70471823513242
+
+https://yh704.us1.dbt.com/70471823513242/projects/70471823529326/setup
+a.rohau.work
+Hint 123454321Qq!
+
+```
+cat << 'SQL' > /tmp/dbt_setup.sql
+-- Create DBT role
+CREATE ROLE "dbt-agent" WITH PASSWORD 'dbt_password#007' LOGIN;
+
+-- Grant schema access
+GRANT USAGE ON SCHEMA metrics TO "dbt-agent";
+GRANT SELECT ON ALL TABLES IN SCHEMA metrics TO "dbt-agent";
+GRANT CREATE ON SCHEMA metrics TO "dbt-agent";
+
+-- Grant future table permissions
+ALTER DEFAULT PRIVILEGES IN SCHEMA metrics 
+GRANT SELECT ON TABLES TO "dbt-agent";
+
+-- Verify the role
+SELECT rolname, rolcanlogin FROM pg_roles WHERE rolname = 'dbt-agent';
+SQL
+cat /tmp/dbt_setup.sql
+```
+
+
+
 
 
 
