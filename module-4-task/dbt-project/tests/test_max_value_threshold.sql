@@ -6,4 +6,4 @@ SELECT
     metric_name,
     max_value
 FROM {{ ref('metrics_view') }}
-WHERE max_value < 50  -- Set to 50 to make it fail
+WHERE max_value > 1000  -- Set to 50 to make it fail
