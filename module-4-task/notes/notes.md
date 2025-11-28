@@ -325,9 +325,13 @@ dbt test               # Run all tests
 dbt test --select test_max_value_threshold  # Run specific test
 ```
 
+![alt text](image-1.png)
 
 
+![alt text](image-2.png)
 
+
+![alt text](image-3.png)
 
 
 
