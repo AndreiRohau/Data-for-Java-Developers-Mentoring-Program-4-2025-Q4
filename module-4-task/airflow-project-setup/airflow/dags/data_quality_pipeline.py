@@ -53,14 +53,28 @@ def data_quality_pipeline():
         
         # Paths
         data_dir = Path('/usr/local/airflow/dags/data')
+        processed_dir = Path('/usr/local/airflow/dags/data/processed')
+        processed_dir.mkdir(exist_ok=True)
         
         # Get database connection
         hook = PostgresHook(postgres_conn_id='neon_db_metrics')
         conn = hook.get_conn()
         cursor = conn.cursor()
         
-        # Find all CSV files (excluding already processed ones)
-        csv_files = [f for f in data_dir.glob('*.csv') if not f.name.endswith('.processed.csv')]
+        # Find all CSV files that haven't been processed yet
+        # Check if file exists in processed/ OR if a marker file exists
+        all_csv_files = list(data_dir.glob('*.csv'))
+        csv_files = []
+        for csv_file in all_csv_files:
+            processed_file = processed_dir / csv_file.name
+            marker_file = processed_dir / f"{csv_file.name}.processed"
+            
+            # Skip if already processed (file moved or marker exists)
+            if processed_file.exists() or marker_file.exists():
+                print(f"Skipping {csv_file.name} - already processed")
+                continue
+            
+            csv_files.append(csv_file)
         
         if not csv_files:
             print("No CSV files found in dags/data folder")
@@ -102,13 +116,20 @@ def data_quality_pipeline():
                 conn.commit()
                 print(f"✓ Committed {record_count} records from {csv_file.name}")
                 
-                # Rename file to mark as processed (adding .processed extension)
-                processed_file = csv_file.with_suffix(csv_file.suffix + '.processed')
+                # Move file to processed folder
+                processed_file = processed_dir / csv_file.name
                 try:
-                    csv_file.rename(processed_file)
-                    print(f"✓ Marked {csv_file.name} as processed")
-                except PermissionError:
-                    print(f"⚠ Warning: Could not rename file, but data was imported successfully")
+                    shutil.move(str(csv_file), str(processed_file))
+                    print(f"✓ Moved {csv_file.name} to processed/")
+                except (PermissionError, OSError) as e:
+                    # If we can't move, try to create a marker file instead
+                    print(f"⚠ Could not move file: {e}")
+                    marker_file = processed_dir / f"{csv_file.name}.processed"
+                    try:
+                        marker_file.touch()
+                        print(f"✓ Created marker file: {marker_file.name}")
+                    except Exception as marker_error:
+                        print(f"⚠ Could not create marker: {marker_error}, but data was imported successfully")
                 
                 processed_count += 1
                 total_records += record_count
