@@ -8,11 +8,14 @@ sources:
         description: "Aggregated metrics data in 5-minute windows"
 
 models:
-  - name: metrics
+  - name: metrics_view
     description: "A view of windowed metrics for analysis"
     columns:
       - name: id
         description: "Primary key"
+        tests:
+          - not_null
+          - unique
       - name: component_name
         description: "The component that produced the event"
         tests:
@@ -23,8 +26,12 @@ models:
           - not_null
       - name: min_value
         description: "Minimum value in the window"
+        tests:
+          - not_null
       - name: max_value
         description: "Maximum value in the window"
+        tests:
+          - not_null
       - name: from_timestamp
         description: "Start of the time window"
       - name: to_timestamp
