@@ -1,0 +1,76 @@
+{
+  "@type": "windowed-metrics",
+  "numberOfIterations": 1000,
+  "timer": {
+    "@type": "synthetic",
+    "startTime": "2024-01-01T00:00:00.000Z",
+    "stepMillis": 300000
+  },
+  "outputFilePath": "test-output/metrics.csv",
+  "metrics": {
+    "user-service": {
+      "cpu-usage": {
+        "unit": "percent",
+        "averageFrom": 20.0,
+        "averageTo": 40.0,
+        "minDiff": 5.0,
+        "maxDiff": 10.0
+      },
+      "memory-usage": {
+        "unit": "percent",
+        "averageFrom": 40.0,
+        "averageTo": 60.0,
+        "minDiff": 8.0,
+        "maxDiff": 15.0
+      }
+    },
+    "api-gateway": {
+      "response-time": {
+        "unit": "milliseconds",
+        "averageFrom": 80.0,
+        "averageTo": 120.0,
+        "minDiff": 10.0,
+        "maxDiff": 20.0
+      },
+      "request-count": {
+        "unit": "count",
+        "averageFrom": 400.0,
+        "averageTo": 600.0,
+        "minDiff": 50.0,
+        "maxDiff": 100.0
+      }
+    },
+    "database-service": {
+      "cpu-usage": {
+        "unit": "percent",
+        "averageFrom": 30.0,
+        "averageTo": 50.0,
+        "minDiff": 5.0,
+        "maxDiff": 12.0
+      },
+      "disk-io": {
+        "unit": "mbps",
+        "averageFrom": 15.0,
+        "averageTo": 35.0,
+        "minDiff": 3.0,
+        "maxDiff": 8.0
+      }
+    },
+    "cache-service": {
+      "memory-usage": {
+        "unit": "percent",
+        "averageFrom": 35.0,
+        "averageTo": 55.0,
+        "minDiff": 5.0,
+        "maxDiff": 10.0
+      },
+      "hit-rate": {
+        "unit": "percent",
+        "averageFrom": 85.0,
+        "averageTo": 95.0,
+        "minDiff": 2.0,
+        "maxDiff": 5.0
+      }
+    }
+  }
+}
