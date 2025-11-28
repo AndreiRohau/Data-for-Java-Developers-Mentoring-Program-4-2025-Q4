@@ -3,6 +3,7 @@ Data Quality Pipeline DAG
 
 This DAG ingests CSV files from the dags/data folder into NeonDB,
 processes them, and moves them to a processed folder.
+Then triggers DBT Cloud job for data transformations and tests.
 """
 
 from datetime import datetime
@@ -11,6 +12,7 @@ import shutil
 
 from airflow.decorators import dag, task
 from airflow.providers.postgres.hooks.postgres import PostgresHook
+from airflow.providers.dbt.cloud.operators.dbt import DbtCloudRunJobOperator
 
 
 @dag(
@@ -215,12 +217,21 @@ def data_quality_pipeline():
         
         return f"Verification complete: {total} total records"
     
+    # DBT Cloud job trigger
+    trigger_dbt_cloud_job = DbtCloudRunJobOperator(
+        task_id="trigger_dbt_cloud_job_run",
+        dbt_cloud_conn_id="dbt_cloud_connection",  # Connection name in Airflow
+        job_id=70471823534131,  # Replace with your actual DBT Cloud job ID
+        check_interval=10,
+        timeout=300,
+    )
+    
     # Define task dependencies
     deps = install_dependencies()
     ingestion_result = ingest_csv_files(deps)
     verification_result = verify_data()
     
-    deps >> ingestion_result >> verification_result
+    deps >> ingestion_result >> verification_result >> trigger_dbt_cloud_job
 
 
 # Instantiate the DAG

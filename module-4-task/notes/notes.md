@@ -205,35 +205,125 @@ PYEOF
 ```
 
 
-# Step 5 - DBT model setup
+# Step 5 - DBT Model Setup ✅
 
-BigDataTraining
-70471823513242
-
-https://yh704.us1.dbt.com/70471823513242/projects/70471823529326/setup
-a.rohau.work
-Hint 123454321Qq!
-
-```
-cat << 'SQL' > /tmp/dbt_setup.sql
--- Create DBT role
+## ✅ Create a role for DBT
+Created `dbt-agent` role in NeonDB:
+```sql
 CREATE ROLE "dbt-agent" WITH PASSWORD 'dbt_password#007' LOGIN;
-
--- Grant schema access
 GRANT USAGE ON SCHEMA metrics TO "dbt-agent";
-GRANT SELECT ON ALL TABLES IN SCHEMA metrics TO "dbt-agent";
 GRANT CREATE ON SCHEMA metrics TO "dbt-agent";
 
--- Grant future table permissions
-ALTER DEFAULT PRIVILEGES IN SCHEMA metrics 
-GRANT SELECT ON TABLES TO "dbt-agent";
-
--- Verify the role
-SELECT rolname, rolcanlogin FROM pg_roles WHERE rolname = 'dbt-agent';
-SQL
-cat /tmp/dbt_setup.sql
+-- Critical: Grant role membership to access airflow-agent's tables
+GRANT "airflow-agent" TO "dbt-agent";
 ```
 
+## ✅ Set up a DBT Cloud project
+- **Account**: BigDataTraining (ID: 70471823513242)
+- **Project**: metrics_project (ID: 70471823529326)
+- **URL**: https://yh704.us1.dbt.com/70471823513242/projects/70471823529326/setup
+- **Connection**: neon_metrics
+  - Host: ep-crimson-mode-a4uljk4s-pooler.us-east-1.aws.neon.tech
+  - Port: 5432
+  - Database: metrics
+  - Schema: metrics
+  - User: dbt-agent
+- **Git Integration**: GitHub repository connected
+  - Repo: AndreiRohau/Data-for-Java-Developers-Mentoring-Program-4-2025-Q4
+  - Subdirectory: module-4-task/dbt-project
+  - Deploy key added to GitHub
+- **Development Environment**: ✅ Created with 6 threads
+- **Production/Deployment Environment**: ✅ Created
+- **Development Credentials**: ✅ Configured (dbt-agent)
+
+## ✅ Create a DBT model
+- **Model**: `metrics_view.sql` (view of windowed_metrics table)
+- **Branch**: development branch created
+- **Columns**: id, component_name, metric_name, unit, min_value, max_value, from_timestamp, to_timestamp, created_at
+- **Materialization**: VIEW
+- **Status**: ✅ Committed and merged to main
+- **Deployment**: ✅ Automatically promoted to production environment
+
+## ✅ Create a DBT job
+- **Job Name**: Production Metrics Job
+- **Environment**: Production (deployment)
+- **Commands**: 
+  - `dbt run` - Build models
+  - `dbt test` - Run tests
+- **Status**: ✅ Job created and runs successfully
+- **Results**: 
+  - dbt run: 1 model built (PASS=1)
+  - dbt test: 7 tests passed (PASS=7)
+- **Runtime**: ~0.5 seconds
+
+## ✅ Create data tests
+### Schema Tests (in `schema.yml`):
+- ✅ `not_null` tests on: id, component_name, metric_name, min_value, max_value
+- ✅ `unique` test on: id
+- **Status**: All 6 schema tests PASS
+
+### Custom Threshold Test (`tests/test_max_value_threshold.sql`):
+```sql
+-- Test that max_value doesn't exceed threshold
+SELECT
+    component_name,
+    metric_name,
+    max_value
+FROM {{ ref('metrics_view') }}
+WHERE max_value > 1000  -- Configurable threshold
+```
+- ✅ **Test with threshold > 50**: FAILS (correctly finds max_value=500)
+- ✅ **Test with threshold > 1000**: PASSES (no values exceed threshold)
+- ✅ **Rollback**: Changed threshold back to 1000
+- ✅ **Final Status**: Test PASSES in production job
+
+## DBT Cloud Setup Complete
+
+### Created Resources:
+1. **DBT Project**: metrics_project (ID: 70471823529326)
+2. **Connection**: neon_metrics (PostgreSQL to NeonDB)
+3. **Environments**:
+   - Development: For model development and testing
+   - Production: For deployment
+4. **GitHub Integration**: Connected to Data-for-Java-Developers-Mentoring-Program-4-2025-Q4
+5. **Subdirectory**: module-4-task/dbt-project
+
+### DBT Models:
+- **metrics_view.sql**: View model of windowed_metrics table
+  - Materialized as: VIEW
+  - Columns: id, component_name, metric_name, unit, min_value, max_value, from_timestamp, to_timestamp, created_at
+  - Ordered by: from_timestamp DESC, component_name, metric_name
+
+### DBT Tests:
+1. **Schema tests** (in schema.yml):
+   - not_null tests on: id, component_name, metric_name, min_value, max_value
+   - unique test on: id
+2. **Custom test** (test_max_value_threshold.sql):
+   - Validates max_value against configurable threshold
+   - Test with threshold > 50: FAILS (finds 500 in data)
+   - Test with threshold > 1000: PASSES (no values exceed)
+
+### Permission Configuration:
+```sql
+-- Critical permission fix for dbt-agent to access airflow-agent's tables
+GRANT "airflow-agent" TO "dbt-agent";
+```
+
+### DBT Job Results:
+- **Production Job**: Successfully runs dbt run + dbt test
+- **Status**: All 7 tests PASS
+  - 6 schema tests (not_null, unique)
+  - 1 custom threshold test
+- **Runtime**: ~0.5 seconds
+
+### Commands Used:
+```bash
+# In DBT Cloud IDE
+dbt debug              # Verify connection
+dbt run                # Build models
+dbt test               # Run all tests
+dbt test --select test_max_value_threshold  # Run specific test
+```
 
 
 
