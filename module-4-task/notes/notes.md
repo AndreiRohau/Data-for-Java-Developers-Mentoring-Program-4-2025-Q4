@@ -1,3 +1,13 @@
+# Resutls demovideo
+
+demo video [link](https://epam-my.sharepoint.com/:v:/r/personal/andrei_rohau_epam_com/Documents/Recordings/video-20251130_201426-Meeting%20Recording.mp4?csf=1&web=1&e=PpPw6g&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D)
+
+-repo self [link](https://github.com/AndreiRohau/Data-for-Java-Developers-Mentoring-Program-4-2025-Q4#)
+- guide [link](https://git.epam.com/epm-cdp/global-java-foundation-program/java-courses/-/blob/main/data-training-for-devs/courses/Data_Training_for_Java_developers/apache-airflow/tasks/task.md)
+- neon [link](https://console.neon.tech/app/projects/still-pine-43384528/branches/br-autumn-feather-a4vu1uh1/sql-editor?database=metrics&query=v3#plan)
+- airflow [link](http://localhost:8080/home?tags=data-ingestion)
+- dbt [link](https://yh704.us1.dbt.com/deploy/70471823513242/projects/70471823529326/jobs/70471823534131)
+
 # Step 1 NeonDB setup
 
 NeonDB
